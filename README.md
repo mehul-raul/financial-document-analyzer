@@ -329,7 +329,7 @@ each agent output is typed and validated by a pydantic schema before being saved
 | 9 | task.py | Hallucination prompts | rewrote all task descriptions, fixed wrong agent assignments |
 | 10 | tools.py | Dead code | removed `InvestmentTool` and `RiskTool` stub classes |
 | 11 | main.py | Dead import + incomplete crew | removed `asyncio`, wired all 4 agents and tasks |
-| 12 | main.py | bcrypt error | dropped passlib, use bcrypt directly with SHA256 pre-hash |
+| 12 | main.py | bcrypt error | used passlib, bcrypt directly with SHA256 pre-hash |
 
 
 full details for each issue are in `BUG_LOG.md`.
