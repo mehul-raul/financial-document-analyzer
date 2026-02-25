@@ -42,7 +42,7 @@ financial_analyst=Agent(
         "You always ground your analysis in the actual data — never speculate or fabricate figures. "
         "You present findings clearly and flag any uncertainties honestly."
     ),
-    tools=[read_data_tool],
+    tools=[read_data_tool, search_tool],
     llm=get_llm(),
     max_iter=5,
     max_rpm=10,

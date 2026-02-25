@@ -1,23 +1,21 @@
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 import os
 import uuid
-import asyncio
-
 from crewai import Crew, Process
-from agents import financial_analyst
-from task import analyze_financial_document
+from agents import financial_analyst, verifier, investment_advisor, risk_assessor
+from task import analyze_financial_document, verification, investment_analysis, risk_assessment
 
 app = FastAPI(title="Financial Document Analyzer")
 
-def run_crew(query: str, file_path: str="data/sample.pdf"):
+def run_crew(query: str, file_path: str):
     """To run the whole crew"""
     financial_crew = Crew(
-        agents=[financial_analyst],
-        tasks=[analyze_financial_document],
+        agents=[financial_analyst, verifier, investment_advisor, risk_assessor],
+        tasks=[verification, analyze_financial_document, investment_analysis, risk_assessment],
         process=Process.sequential,
     )
     
-    result = financial_crew.kickoff({'query': query})
+    result = financial_crew.kickoff({'query': query, 'file_path': file_path})
     return result
 
 @app.get("/")
@@ -26,7 +24,7 @@ async def root():
     return {"message": "Financial Document Analyzer API is running"}
 
 @app.post("/analyze")
-async def analyze_financial_document(
+async def  analyze_document_endpoint(
     file: UploadFile = File(...),
     query: str = Form(default="Analyze this financial document for investment insights")
 ):
@@ -50,11 +48,17 @@ async def analyze_financial_document(
             
         # Process the financial document with all analysts
         response = run_crew(query=query.strip(), file_path=file_path)
+
+        analysis_output = (
+            response.pydantic.model_dump()
+            if hasattr(response, 'pydantic') and response.pydantic
+            else str(response)
+        )
         
         return {
             "status": "success",
             "query": query,
-            "analysis": str(response),
+            "analysis": analysis_output, #ensure structured output
             "file_processed": file.filename
         }
         
