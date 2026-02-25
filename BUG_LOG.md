@@ -104,29 +104,14 @@
 **Root Cause: asyncio was imported but never used anywhere. run_crew was only passing financial_analyst and analyze_financial_document to the crew, the other 3 agents and 3 tasks were completely ignored**\
 **Fix Applied: removed unused import, updated run_crew to include all 4 agents and all 4 tasks in the correct order**
 
+
 ---
 
 ## Issue 12
 **File: main.py**\
-**Error: only the last task output was being returned**\
-**Root Cause: crewai sequential mode returns only the final task result from kickoff(). so verification, financial_analysis and investment_analysis outputs were all invisible in the response**\
-**Fix Applied: after kickoff, iterate over each task object individually using task.output to extract all 4 outputs separately and return them as a structured dict**
-
----
-
-## Issue 13
-**File: database.py**\
-**Error: uuid imported twice, declarative_base deprecated, no get_db dependency, completed_at had a default value, result columns were String instead of JSONB, filename was wrongly typed as Integer with a FK to a nonexistent contracts table**\
-**Root Cause: multiple issues in the initial schema - duplicate import, outdated sqlalchemy API, missing session dependency for fastapi, completed_at shouldnt have a default since the job isnt complete at creation, JSON data should use JSONB not String for proper postgresql storage and queryability**\
-**Fix Applied: removed duplicate import, updated to DeclarativeBase, added get_db() dependency, removed completed_at default (nullable=True), changed result columns to JSONB, fixed filename to Column(String)**
-
----
-
-## Issue 14
-**File: main.py**\
 **Error: ValueError - password cannot be longer than 72 bytes**\
-**Root Cause: bcrypt 5.0+ broke passlib 1.7.4 compatibility. passlib is also no longer maintained so no fix coming from their side**\
-**Fix Applied: dropped passlib entirely, use bcrypt directly. pre-hash password with SHA256 (always outputs 64 bytes, safe for bcrypt) then base64 encode before passing to bcrypt.hashpw(). same normalization applied in verify_password so login works correctly**
+**Root Cause: bcrypt 5.0 broke passlib 1.7.4 compatibility. passlib is also no longer maintained so no fix coming from their side**\
+**Fix Applied: drowngraded passlib and bcrypt old version. pre-hash password with SHA256 (always outputs 64 bytes, safe for bcrypt) then hash the normalized password.**
 
 ---
 
